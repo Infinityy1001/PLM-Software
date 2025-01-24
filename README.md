@@ -31,7 +31,7 @@ python run.py
 ```
 
 4. Project Overview
-
+```bash 
 PLM/
 │
 ├── venv/                   # Virtual environment
@@ -57,3 +57,4 @@ PLM/
 ├── run.py                  # Starts the Flask application
 │
 └── requirements.txt        # Python dependencies
+```
