@@ -9,10 +9,6 @@
 git clone https://github.com/Infinityy1001/PLM-Software.git
 ```
 
-```bash
-cd PLM
-```
-
 1. Start a venv:
 
 ```bash 
