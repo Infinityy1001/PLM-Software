@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory - The Parfume Factory{% endblock %}
+
+{% block content %}
+<div class="inventory-page">
+    <h2>Inventory Management</h2>
+    
+    <div class="inventory-controls">
+        <div class="search-filters">
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Search..." class="search-input">
+                <select id="categoryFilter" class="category-select">
+                    <option value="all">All Items</option>
+                    <option value="products">Products</option>
+                    <option value="components">Components</option>
+                </select>
+                <select id="typeFilter" class="type-select">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="inventory-section" id="products-section">
+        <h3>Products</h3>
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Version</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    {% if current_user.role == 'admin' %}
+                    <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    {% for entry in product.inventory_entries %}
+                    <tr class="product-item">
+                        <td>{{ product.name }}</td>
+                        <td><span class="category-tag">{{ product.category }}</span></td>
+                        <td>v{{ entry.version }}</td>
+                        <td>{{ entry.inventory }}</td>
+                        <td>
+                            <span class="status-badge {% if entry.inventory < 10 %}low-stock{% endif %}">
+                                {% if entry.inventory > 20 %}
+                                    In Stock
+                                {% elif entry.inventory > 0 %}
+                                    Low Stock
+                                {% else %}
+                                    Out of Stock
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(entry.price) }}</td>
+                        {% if current_user.role == 'admin' %}
+                        <td>
+                            <a href="{{ url_for('product.edit_product_inventory', id=product.id, version=entry.version) }}" 
+                               class="action-btn edit-btn">Update</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Components Section -->
+    <div class="inventory-section" id="components-section">
+        <h3>Components</h3>
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Stock</th>
+                    <th>Min. Stock</th>
+                    <th>Status</th>
+                    <th>Used In</th>
+                    {% if current_user.role == 'admin' %}
+                    <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in components %}
+                <tr class="component-item">
+                    <td>{{ component.name }}</td>
+                    <td><span class="type-tag">{{ component.type }}</span></td>
+                    <td>{{ component.inventory }}</td>
+                    <td>{{ component.min_stock }}</td>
+                    <td>
+                        <span class="status-badge {% if component.stock_status in ['low_stock', 'out_of_stock'] %}low-stock{% endif %}">
+                            {% if component.stock_status == 'in_stock' %}
+                                In Stock
+                            {% elif component.stock_status == 'low_stock' %}
+                                Low Stock
+                            {% else %}
+                                Out of Stock
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="product-tags">
+                            {% for product in component.products[:2] %}
+                            <span class="product-tag">{{ product.name }}</span>
+                            {% endfor %}
+                            {% if component.products|length > 2 %}
+                            <span class="more-tag">+{{ component.products|length - 2 }} more</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% if current_user.role == 'admin' %}
+                    <td>
+                        <a href="{{ url_for('product.edit_component', id=component.id) }}" 
+                           class="action-btn edit-btn">Update</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.inventory-page {
+    padding: 20px;
+}
+
+.inventory-controls {
+    margin: 20px 0;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-filters {
+    display: flex;
+    gap: 15px;
+}
+
+.search-group {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.search-input, .category-select, .type-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.search-input {
+    flex: 2;
+}
+
+.category-select, .type-select {
+    flex: 1;
+}
+
+.inventory-section {
+    margin: 30px 0;
+}
+
+.inventory-section h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.inventory-table th,
+.inventory-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.inventory-table th {
+    background: #f8f9fa;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.inventory-table tr:hover {
+    background: #f8f9fa;
+}
+
+.category-tag, .type-tag {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.low-stock {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.product-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.product-tag {
+    background: #f3e5f5;
+    color: #7b1fa2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.more-tag {
+    background: #e0e0e0;
+    color: #616161;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.action-btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.edit-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.edit-btn:hover {
+    background: #bbdefb;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const cards = document.querySelectorAll('.inventory-card');
+
+    // Define type options for different categories
+    const typeOptions = {
+        products: ['Perfume', 'Cologne', 'Essential Oil', 'Body Spray'],
+        components: ['Fragrance Oil', 'Scented Water', 'Essential Oil', 'Alcohol Base', 
+                    'Bottle', 'Cap', 'Box', 'Label', 'Other']
+    };
+
+    // Update type filter options based on category selection
+    categoryFilter.addEventListener('change', function() {
+        const category = this.value;
+        typeFilter.innerHTML = '<option value="">All Types</option>';
+        
+        if (category !== 'all') {
+            typeOptions[category].forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+        }
+        filterCards();
+    });
+
+    function filterCards() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+        const selectedType = typeFilter.value.toLowerCase();
+
+        cards.forEach(card => {
+            const name = card.querySelector('h3').textContent.toLowerCase();
+            const isProduct = card.classList.contains('product-item');
+            const type = card.querySelector(isProduct ? '.category-tag' : '.type-tag').textContent.toLowerCase();
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesCategory = selectedCategory === 'all' || 
+                                  (selectedCategory === 'products' && isProduct) ||
+                                  (selectedCategory === 'components' && !isProduct);
+            const matchesType = !selectedType || type === selectedType;
+
+            card.style.display = matchesSearch && matchesCategory && matchesType ? 'block' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterCards);
+    categoryFilter.addEventListener('change', filterCards);
+    typeFilter.addEventListener('change', filterCards);
+});
+</script>
+{% endblock %} 

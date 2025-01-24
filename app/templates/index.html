@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - My Perfume Shop{% endblock %}
+
+{% block content %}
+    <h2>Our Products</h2>
+    <ul>
+        {% for product in products %}
+            <li>{{ product.name }} - ${{ product.price }} - Stock: {{ product.inventory }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

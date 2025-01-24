@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Components - The Parfume Factory{% endblock %}
+
+{% block content %}
+<div class="components-page">
+    <h2>Components Library</h2>
+
+    <div class="inventory-controls">
+        <div class="search-filters">
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Search components..." class="search-input">
+                <select id="typeFilter" class="category-select">
+                    <option value="">All Types</option>
+                    <option value="Fragrance Oil">Fragrance Oils</option>
+                    <option value="Scented Water">Scented Waters</option>
+                    <option value="Essential Oil">Essential Oils</option>
+                    <option value="Alcohol Base">Alcohol Bases</option>
+                    <option value="Bottle">Bottles</option>
+                    <option value="Cap">Caps/Sprayers</option>
+                    <option value="Box">Boxes/Packages</option>
+                    <option value="Label">Labels</option>
+                    <option value="Other">Other Materials</option>
+                </select>
+            </div>
+        </div>
+
+        {% if current_user.role == 'admin' %}
+        <div class="admin-controls">
+            <a href="{{ url_for('product.add_standalone_component') }}" class="action-btn add-btn">Add New Component</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="component-grid">
+        {% for component in components %}
+        <div class="component-card">
+            <div class="component-header">
+                <h3>{{ component.name }}</h3>
+                <span class="version-badge">v{{ component.current_version }}</span>
+            </div>
+            
+            <div class="component-details">
+                <span class="type-tag">{{ component.type }}</span>
+                <p class="description">{{ component.description }}</p>
+                
+                <div class="stock-info">
+                    <span class="stock-label">Current Stock</span>
+                    <span class="stock-value">{{ component.inventory if component.inventory is defined else 'N/A' }}</span>
+                </div>
+
+                {% if component.products %}
+                <div class="usage-info">
+                    <span class="usage-label">Used in Products:</span>
+                    <div class="product-tags">
+                        {% for product in component.products %}
+                        <span class="product-tag">{{ product.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="component-actions">
+                <div class="action-group">
+                    <a href="{{ url_for('product.component_versions', id=component.id) }}" 
+                       class="action-btn version-btn" title="View Version History">
+                        Versions
+                    </a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('product.new_component_version', id=component.id) }}" 
+                       class="action-btn edit-btn" title="New Version">
+                        New Version
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.components-page {
+    padding: 20px;
+}
+
+.inventory-controls {
+    margin: 20px 0;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-filters {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.search-group {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input, .category-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.search-input {
+    flex: 2;
+}
+
+.category-select {
+    flex: 1;
+}
+
+.component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.component-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.component-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.component-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.component-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.2em;
+}
+
+.version-badge {
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    color: #495057;
+}
+
+.type-tag {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.description {
+    color: #666;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.stock-info {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+.stock-label {
+    font-size: 0.8em;
+    color: #666;
+    display: block;
+}
+
+.stock-value {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.usage-info {
+    margin-top: 15px;
+}
+
+.usage-label {
+    font-size: 0.8em;
+    color: #666;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.product-tag {
+    background: #f3e5f5;
+    color: #7b1fa2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.component-actions {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.version-btn {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.version-btn:hover {
+    background: #e1bee7;
+}
+
+.edit-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.edit-btn:hover {
+    background: #bbdefb;
+}
+
+.add-btn {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.add-btn:hover {
+    background: #c8e6c9;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const cards = document.querySelectorAll('.component-card');
+
+    function filterCards() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedType = typeFilter.value.toLowerCase();
+
+        cards.forEach(card => {
+            const componentName = card.querySelector('h3').textContent.toLowerCase();
+            const componentType = card.querySelector('.type-tag').textContent.toLowerCase();
+            
+            const matchesSearch = componentName.includes(searchTerm);
+            const matchesType = !selectedType || componentType === selectedType;
+
+            card.style.display = matchesSearch && matchesType ? 'block' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterCards);
+    typeFilter.addEventListener('change', filterCards);
+});
+</script>
+{% endblock %} 

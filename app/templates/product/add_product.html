@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product - The Parfume Factory{% endblock %}
+
+{% block content %}
+<div class="edit-component">
+    <div class="component-card">
+        <div class="component-header">
+            <h2>Add New Product</h2>
+        </div>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="name">Product Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="inventory">Initial Inventory:</label>
+                <input type="number" id="inventory" name="inventory" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category" name="category" required>
+                    <option value="">Select a category...</option>
+                    <option value="Perfume">Perfume</option>
+                    <option value="Cologne">Cologne</option>
+                    <option value="Essential Oil">Essential Oil</option>
+                    <option value="Body Spray">Body Spray</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Components:</label>
+                <div class="components-selection">
+                    {% for component in available_components %}
+                    <div class="component-item">
+                        <input type="checkbox" 
+                               id="component_{{ component.id }}" 
+                               name="components" 
+                               value="{{ component.id }}">
+                        <label for="component_{{ component.id }}" class="checkbox-label">
+                            <span class="component-name">{{ component.name }}</span>
+                            <div class="component-details">
+                                <span class="type-tag">{{ component.type }}</span>
+                                {% if component.products %}
+                                <span class="usage-info">
+                                    Used in {{ component.products|length }} product{{ 's' if component.products|length != 1 }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if not available_components %}
+                <p class="warning">No components available. Please <a href="{{ url_for('product.add_standalone_component') }}">add some components</a> first.</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn" {% if not available_components %}disabled{% endif %}>
+                    Add Product
+                </button>
+                <a href="{{ url_for('product.index') }}" class="btn cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.edit-component {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.component-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.component-header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.component-header h2 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group input:not([type="checkbox"]),
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.components-selection {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.component-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.component-item:last-child {
+    border-bottom: none;
+}
+
+.checkbox-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.component-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.component-details {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.type-tag {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.usage-info {
+    color: #666;
+    font-size: 0.8em;
+}
+
+.warning {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.save-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+    flex: 1;
+}
+
+.save-btn:hover:not([disabled]) {
+    background: #bbdefb;
+}
+
+.save-btn[disabled] {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.cancel-btn {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.cancel-btn:hover {
+    background: #e0e0e0;
+}
+</style>
+{% endblock %} 

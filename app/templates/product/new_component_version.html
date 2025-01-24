@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}New Version - {{ component.name }}{% endblock %}
+
+{% block content %}
+<div class="version-form">
+    <h2>Create New Version for {{ component.name }}</h2>
+    
+    {% if component.products %}
+    <p>Used in Products: 
+        {% for product in component.products %}
+            <span class="product-tag">{{ product.name }}</span>
+            {% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}
+
+    <form method="post">
+        <div class="form-group">
+            <label for="version_number">Version Number:</label>
+            <input type="text" id="version_number" name="version_number" 
+                   value="{{ component.current_version }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="changes">Changes:</label>
+            <textarea id="changes" name="changes" required></textarea>
+        </div>
+        
+        <div class="warning-message">
+            <p>Warning: Creating a new version will automatically update all products using this component.</p>
+        </div>
+        
+        <button type="submit" class="btn">Create Version</button>
+    </form>
+</div>
+{% endblock %} 

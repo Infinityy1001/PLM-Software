@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Components - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="components-list">
+    <h2>Components: {{ product.name }}</h2>
+    <p>Product Version: {{ product.current_version }}</p>
+
+    {% if current_user.role == 'admin' %}
+    <div class="admin-controls">
+        <a href="{{ url_for('product.add_product_component', id=product.id) }}" 
+           class="btn">Add New Component</a>
+    </div>
+    {% endif %}
+
+    {% if product.components %}
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Current Version</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in product.components %}
+                <tr>
+                    <td>{{ component.name }}</td>
+                    <td>{{ component.current_version }}</td>
+                    <td>{{ component.description }}</td>
+                    <td>
+                        <a href="{{ url_for('product.component_versions', id=component.id) }}" 
+                           class="btn-small">View Versions</a>
+                        {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('product.new_component_version', id=component.id) }}" 
+                           class="btn-small">New Version</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No components added yet.</p>
+    {% endif %}
+</div>
+{% endblock %} 

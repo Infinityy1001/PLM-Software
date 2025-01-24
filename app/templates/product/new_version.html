@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}New Version - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create New Version</h2>
+        <h3>{{ product.name }} (Current: v{{ product.current_version }})</h3>
+        
+        <form method="post">
+            <div class="form-group">
+                <label for="changes">Changes Description:</label>
+                <textarea id="changes" name="changes" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="change_type">Change Type:</label>
+                <select id="change_type" name="change_type" required>
+                    <option value="major">Major Change (x.0.0)</option>
+                    <option value="medium">Medium Change (1.x.0)</option>
+                    <option value="minor" selected>Minor Change (1.0.x)</option>
+                </select>
+                <small class="help-text">
+                    Major: Breaking changes<br>
+                    Medium: New features, backwards compatible<br>
+                    Minor: Bug fixes, small updates
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_production" value="true" id="is_production">
+                    Production Version
+                </label>
+                <small class="help-text">
+                    Check this if this version will be produced and needs inventory tracking.<br>
+                    Leave unchecked for development/testing versions.
+                </small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn">Create Version</button>
+                <a href="{{ url_for('product.view_versions', id=product.id) }}" class="btn cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.auth-card h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+}
+
+.auth-card h3 {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.2em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.help-text {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.save-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+    flex: 1;
+}
+
+.save-btn:hover {
+    background: #bbdefb;
+}
+
+.cancel-btn {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.cancel-btn:hover {
+    background: #e0e0e0;
+}
+</style>
+{% endblock %} 

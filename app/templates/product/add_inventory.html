@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Inventory - {{ product.name }} v{{ version }}{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Add Inventory</h2>
+        <h3>{{ product.name }} (v{{ version }})</h3>
+        
+        <form method="post">
+            <div class="form-group">
+                <label for="quantity">Quantity to Add:</label>
+                <input type="number" id="quantity" name="quantity" required min="1">
+            </div>
+            
+            <div class="components-info">
+                <h4>Required Components:</h4>
+                {% for component in product.components %}
+                <div class="component-item">
+                    <span class="component-name">{{ component.name }}</span>
+                    <span class="component-stock">Available: {{ component.inventory }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn">Add Inventory</button>
+                <a href="{{ url_for('product.inventory') }}" class="btn cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Use similar styling as other forms */
+.components-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.component-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.component-item:last-child {
+    border-bottom: none;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Product Details - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="product-details">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
+    <p>Category: {{ product.category }}</p>
+    <p>Current Version: {{ product.current_version }}</p>
+    <p>Current Inventory: {{ product.current_inventory }}</p>
+    <p>Current Price: ${{ product.current_price }}</p>
+
+    <h3>Versions</h3>
+    <ul>
+        {% for version in product.versions %}
+        <li>
+            Version {{ version.version_number }} - Changes: {{ version.changes }}
+            <ul>
+                <li>Inventory: {{ version.inventory_entry.inventory }}</li>
+                <li>Price: ${{ version.inventory_entry.price }}</li>
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %} 

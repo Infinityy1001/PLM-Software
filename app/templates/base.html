@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Perfume Shop{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="{{ url_for('home') }}" class="nav-btn home">🏠 Home</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('product.index') }}" class="nav-btn products">🧪 Products</a></li>
+                    <li><a href="{{ url_for('product.inventory') }}" class="nav-btn inventory">📦 Inventory</a></li>
+                    <li><a href="{{ url_for('product.list_components') }}" class="nav-btn components">⚗️ Components</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}" class="nav-btn logout">🚪 Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}" class="nav-btn login">🔑 Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}" class="nav-btn register">📝 Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                        <button class="close-btn">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer>
+        <p>© 2023 My Perfume Shop. All rights reserved.</p>
+    </footer>
+
+    <style>
+    .flash-messages {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 300px;
+    }
+
+    .flash-message {
+        background: white;
+        border-left: 4px solid #4CAF50;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 10px;
+        padding: 15px 40px 15px 15px;
+        border-radius: 4px;
+        position: relative;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .flash-message.error {
+        border-left-color: #f44336;
+    }
+
+    .flash-message.warning {
+        border-left-color: #ff9800;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #666;
+        padding: 0 5px;
+    }
+
+    .close-btn:hover {
+        color: #333;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    header {
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 15px 20px;
+    }
+
+    header h1 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1.8em;
+    }
+
+    .main-nav ul {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-nav li {
+        list-style: none;
+    }
+
+    .nav-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        gap: 6px;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .home {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .home:hover {
+        background: #bbdefb;
+    }
+
+    .products {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .products:hover {
+        background: #e1bee7;
+    }
+
+    .inventory {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .inventory:hover {
+        background: #c8e6c9;
+    }
+
+    .components {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .components:hover {
+        background: #ffe0b2;
+    }
+
+    .login {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .login:hover {
+        background: #bbdefb;
+    }
+
+    .register {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .register:hover {
+        background: #e1bee7;
+    }
+
+    .logout {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .logout:hover {
+        background: #ffcdd2;
+    }
+
+    @media (max-width: 768px) {
+        .main-nav ul {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .nav-btn {
+            justify-content: center;
+        }
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        
+        flashMessages.forEach(message => {
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                message.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => {
+                    message.remove();
+                }, 500);
+            }, 5000);
+
+            // Close button functionality
+            const closeBtn = message.querySelector('.close-btn');
+            closeBtn.addEventListener('click', () => {
+                message.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => {
+                    message.remove();
+                }, 500);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

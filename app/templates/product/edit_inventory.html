@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product Inventory - {{ entry.product.name }}{% endblock %}
+
+{% block content %}
+<div class="edit-component">
+    <div class="component-card">
+        <div class="component-header">
+            <h2>Update Inventory: {{ entry.product.name }} (v{{ entry.version }})</h2>
+            <span class="type-tag">{{ entry.product.category }}</span>
+        </div>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="inventory">Current Stock:</label>
+                <input type="number" 
+                       id="inventory" 
+                       name="inventory" 
+                       value="{{ entry.inventory }}" 
+                       required 
+                       min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" 
+                       id="price" 
+                       name="price" 
+                       value="{{ entry.price }}" 
+                       step="0.01"
+                       required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn">Update Stock</button>
+                <a href="{{ url_for('product.index') }}" class="btn cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Use the same styles as edit_component.html */
+</style>
+{% endblock %} 

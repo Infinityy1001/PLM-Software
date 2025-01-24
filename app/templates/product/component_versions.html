@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Component Versions - {{ component.name }}{% endblock %}
+
+{% block content %}
+<div class="versions-page">
+    <div class="page-header">
+        <h2>Version History: {{ component.name }}</h2>
+        {% if current_user.role == 'admin' %}
+        <button onclick="showNewVersionModal()" class="action-btn add-btn">New Version</button>
+        {% endif %}
+    </div>
+
+    <div class="versions-list">
+        {% for version in component.versions|sort(attribute='created_at', reverse=true) %}
+        <div class="version-card">
+            <div class="version-header">
+                <span class="version-number">v{{ version.version_number }}</span>
+                {% if version.is_production %}
+                    <span class="production-badge">Production</span>
+                {% else %}
+                    <span class="dev-badge">Development</span>
+                {% endif %}
+                <span class="version-date">{{ version.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <div class="version-content">
+                <p class="changes">{{ version.changes }}</p>
+                <p class="author">By: {{ User.query.get(version.created_by).username }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- New Version Modal -->
+<div id="newVersionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Create New Version</h3>
+            <span class="close" onclick="hideNewVersionModal()">&times;</span>
+        </div>
+        <form method="POST" action="{{ url_for('product.new_component_version', id=component.id) }}">
+            <div class="form-group">
+                <label for="changes">Changes Description:</label>
+                <textarea id="changes" name="changes" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="change_type">Change Type:</label>
+                <select id="change_type" name="change_type" required>
+                    <option value="major">Major Change (x.0.0)</option>
+                    <option value="medium">Medium Change (1.x.0)</option>
+                    <option value="minor" selected>Minor Change (1.0.x)</option>
+                </select>
+                <small class="help-text">
+                    Major: Breaking changes<br>
+                    Medium: New features, backwards compatible<br>
+                    Minor: Bug fixes, small updates
+                </small>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_production" value="true" id="is_production">
+                    Production Version
+                </label>
+                <small class="help-text">
+                    Check this if this version will be used in production and affects products.<br>
+                    Leave unchecked for development/testing versions.
+                </small>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn">Create Version</button>
+                <button type="button" class="btn cancel-btn" onclick="hideNewVersionModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.versions-page {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.versions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.version-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.version-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.version-number {
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.version-date {
+    color: #666;
+}
+
+.version-content {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.changes {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.author {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group textarea {
+    width: 100%;
+    height: 100px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.save-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+    flex: 1;
+}
+
+.cancel-btn {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.add-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function showNewVersionModal() {
+    document.getElementById('newVersionModal').style.display = 'block';
+}
+
+function hideNewVersionModal() {
+    document.getElementById('newVersionModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('newVersionModal');
+    if (event.target == modal) {
+        hideNewVersionModal();
+    }
+}
+</script>
+{% endblock %} 
